@@ -1,0 +1,73 @@
+apiVersion: observability.openshift.io/v1
+kind: ClusterLogForwarder
+metadata:
+  annotations:
+    observability.openshift.io/log-level: info
+  name: vector
+  namespace: openshift-logging
+spec:
+  managementState: Managed
+  outputs:
+  - cloudwatch:
+      authentication:
+        iamRole:
+          roleARN:
+            key: credentials
+            secretName: cloudwatch-credentials
+          token:
+            from: serviceAccount
+        type: iamRole
+      groupName: the-cluster-infrastructure
+      region: ap-southeast-2
+    name: cloudwatch-infrastructure
+    type: cloudwatch
+  #- cloudwatch:
+  #    authentication:
+  #      iamRole:
+  #        roleARN:
+  #          key: credentials
+  #          secretName: cloudwatch-credentials
+  #        token:
+  #          from: serviceAccount
+  #      type: iamRole
+  #    groupName: the-cluster-application
+  #    region: ap-southeast-2
+  #  name: cloudwatch-application
+  #  type: cloudwatch
+  - cloudwatch:
+      authentication:
+        iamRole:
+          roleARN:
+            key: credentials
+            secretName: cloudwatch-credentials
+          token:
+            from: serviceAccount
+        type: iamRole
+      groupName: the-cluster.{.kubernetes.namespace_name||"unknown"}
+      region: ap-southeast-2
+    name: cloudwatch-namespace-all
+    type: cloudwatch
+  #inputs:
+  #  - name: namespace-andrew
+  #    type: application
+  #    application: 
+  #      includes:
+  #        - namespace: andrew
+  pipelines:
+  - inputRefs:
+    - infrastructure
+    name: cloudwatch-input-infrastructure
+    outputRefs:
+    - cloudwatch-infrastructure
+  - inputRefs:
+    - application
+    name: cloudwatch-in-namespace-all
+    outputRefs:
+    - cloudwatch-namespace-all
+  #- inputRefs:
+  #  - namespace-andrew
+  #  name: cloudwatch-namespace-andrew
+  #  outputRefs:
+  #  - cloudwatch-namespace-andrew
+  serviceAccount:
+    name: logging

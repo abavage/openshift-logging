@@ -1,0 +1,73 @@
+apiVersion: observability.openshift.io/v1
+kind: ClusterLogForwarder
+metadata:
+  annotations:
+    observability.openshift.io/log-level: debug
+  name: vector
+  namespace: openshift-logging
+spec:
+  managementState: Managed
+  outputs:
+  - cloudwatch:
+      authentication:
+        iamRole:
+          roleARN:
+            key: credentials
+            secretName: cloudwatch-credentials
+          token:
+            from: serviceAccount
+        type: iamRole
+      groupName: the-cluster-infrastructure
+      region: ap-southeast-2
+    name: cloudwatch-infrastructure
+    type: cloudwatch
+  - cloudwatch:
+      authentication:
+        iamRole:
+          roleARN:
+            key: credentials
+            secretName: cloudwatch-credentials
+          token:
+            from: serviceAccount
+        type: iamRole
+      groupName: the-cluster-application
+      region: ap-southeast-2
+    name: cloudwatch-application
+    type: cloudwatch
+  - cloudwatch:
+      authentication:
+        iamRole:
+          roleARN:
+            key: credentials
+            secretName: cloudwatch-credentials
+          token:
+            from: serviceAccount
+        type: iamRole
+      groupName: the-cluster-namespace-test
+      region: ap-southeast-2
+    name: cloudwatch-namespace-test
+    type: cloudwatch
+  inputs:
+    - name: namespace-test
+      type: application
+      application: 
+        includes:
+          - namespace: test
+  pipelines:
+  - inputRefs:
+    - infrastructure
+    name: cloudwatch-input-infrastructure
+    outputRefs:
+    - cloudwatch-infrastructure
+  - inputRefs:
+    - application
+    name: cloudwatch-in-application
+    outputRefs:
+    - cloudwatch-application
+  - inputRefs:
+    - namespace-test
+    name: cloudwatch-namespace-test
+    outputRefs:
+    - cloudwatch-namespace-test
+  serviceAccount:
+    name: logging

@@ -1,0 +1,38 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ab-logfilesmetricexporter
+  namespace: openshift-logging
+spec:
+  endpoints:
+  - bearerTokenSecret:
+      key: ""
+    #metricRelabelings:
+    #- action: replace
+    #  regex: (.*)-(.*)
+    #  replacement: ${1}_${2}
+    #  sourceLabels:
+    #  - __name__
+    #  targetLabel: __name__
+    path: /metrics
+    port: exporter-port
+    scheme: https
+    tlsConfig:
+      ca: {}
+      #caFile: /etc/prometheus/configmaps/serving-certs-ca-bundle/service-ca.crt
+      cert: {}
+      serverName: logfilesmetricexporter.openshift-logging.svc
+  jobLabel: monitor-logfilesmetricexporter
+  namespaceSelector:
+    matchNames:
+    - openshift-logging
+  podTargetLabels:
+  - app.kubernetes.io/name
+  - app.kubernetes.io/component
+  - app.kubernetes.io/part-of
+  - app.kubernetes.io/instance
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: logfilesmetricexporter
+      app.kubernetes.io/instance: instance
+      logging.observability.openshift.io/service-type: metrics

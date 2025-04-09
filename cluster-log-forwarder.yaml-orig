@@ -1,0 +1,70 @@
+# * spec.outputs[0].name: Required value
+# * spec.pipelines[0].outputRefs: Required value
+# * spec.pipelines[0].outputRefs: Required value
+
+apiVersion: observability.openshift.io/v1
+kind: ClusterLogForwarder
+metadata:
+  name: instance
+  namespace: openshift-logging
+spec:
+  outputs:
+  - cloudwatch:
+      groupName: the-cluster
+      region: ap-southeast-2
+      name: cloudwatch-out
+      authentication:
+        type: iamRole
+        iamRole:
+          roleARN:
+            key: credentials 
+            secretName: cloudwatch-credentials
+          token:
+            #from: secret
+            from: serviceAccount
+            #secret: 
+            #  key: credentials
+            #  name: cloudwatch-credentials
+    name: cloudwatch-out
+    type: cloudwatch
+  pipelines:
+  - inputRefs:
+    - application
+    - infrastructure
+    name: cloudwatch-in
+    outputRefs:
+    - cloudwatch-out
+  serviceAccount:
+    name: logcollector
+
+
+#apiVersion: observability.openshift.io/v1
+#kind: ClusterLogForwarder
+#metadata:
+#  name: instance
+#  namespace: openshift-logging
+#spec:
+#  serviceAccountName: logcollector
+#  outputs:
+#   - name: cw 
+#     type: cloudwatch 
+#     cloudwatch:
+#       groupBy: logType 
+#       groupPrefix: the-cluster 
+#       region: ap-southeast-4
+#       authentication:
+#         iamRole: 
+#           roleARN: "arn:aws:iam::943069263946:role/the-cluster-RosaCloudWatch"
+#           token: /var/run/secrets/openshift/serviceaccount/token
+#         #type: 
+#       groupName: the-cluster
+#     secret:
+#        name: cloudwatch-credentials
+#  pipelines:
+#    - name: to-cloudwatch 
+#      inputRefs: 
+#        - infrastructure
+#        - audit
+#        - application
+#      outputRefs:
+###        - cw 
