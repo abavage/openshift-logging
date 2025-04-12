@@ -1,0 +1,96 @@
+
+BUCKETNAME=dc1002-loki-log-store
+AWSACCOUNTID=$(aws sts get-caller-identity --query Account --output text)
+OIDC_PROVIDER=$(oc get authentication.config.openshift.io cluster -ojson | jq -r .spec.serviceAccountIssuer | sed 's/https:\/\///')
+
+
+policy.json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "LokiStorage",
+            "Effect": "Allow",
+            "Action": [
+                "s3:ListBucket",
+                "s3:PutObject",
+                "s3:GetObject",
+                "s3:DeleteObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::${BUCKETNAME}",
+                "arn:aws:s3:::${BUCKETNAME}/*"
+            ]
+        }
+    ]
+}
+
+trust.json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::${AWSACCOUNTID}:oidc-provider/${OIDC_PROVIDER}"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "${OIDC_PROVIDER}:sub": "system:serviceaccount:openshift-logging:logging-loki"
+        }
+      }
+    }
+  ]
+}
+
+aws iam create-role --role-name dc1002-lokistack-access-role --assume-role-policy-document file://trust.json --query Role.Arn --output text
+aws iam create-policy --policy-name dc1002-lokistack-access --policy-document file://policy.json --query Policy.Arn --output text
+aws iam attach-role-policy --role-name dc1002-lokistack-access-role --policy-arn arn:aws:iam::${AWSACCOUNTID}:policy/dc1002-lokistack-access
+
+
+aws s3 mb --region ap-southeast-4 s3://${BUCKETNAME}
+
+
+lokistack.yaml
+---
+apiVersion: loki.grafana.com/v1
+kind: LokiStack
+metadata:
+  name: logging-loki
+  namespace: openshift-logging
+spec:
+  size: 1x.extra-small
+  storage:
+    schemas:
+      - effectiveDate: '2023-10-15'
+        version: v13
+    secret:
+      name: logging-loki-aws
+      type: s3
+      credentialMode: token
+  storageClassName: gp3-csi
+  tenants:
+    mode: openshift-logging
+
+
+loki-secret.yaml
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: logging-loki-aws
+  namespace: openshift-logging
+type: Opaque
+data:
+  audience: b3BlbnNoaWZ0                   # decoded value is openshift
+  bucketnames: dGhlLWNsdXN0ZXItbG9raQ==    # b64 encode the $BUCKETNAME
+  region: YXAtc291dGhlYXN0LTI=             # b64 encode ap-southeast-4
+  role_arn: YXJuOmF3czppYW06Ojk3NTA1MDE5MjU0ODpyb2xlL3RoZS1jbHVzdGVyLWxva2lzdGFjay1hY2Nlc3Mtcm9sZQ==  # b64 encode the role ARN
+
+
+
+
+
+
+

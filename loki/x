@@ -1,0 +1,14 @@
+cluster log forwwarder 
+  aws role/policies/trust policy
+  -> cw
+ 
+
+network obs operator
+  loki operator 
+    -> aws role/policy/trust / s3
+  cluster obs operaor
+  netwok obs operator
+
+
+
+  

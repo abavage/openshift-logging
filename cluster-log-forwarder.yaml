@@ -47,6 +47,19 @@ spec:
       region: ap-southeast-2
     name: cloudwatch-namespace-all
     type: cloudwatch
+  - name: default-lokistack
+    type: lokiStack
+    lokiStack:
+      authentication:
+        token:
+          from: serviceAccount
+      target:
+        name: logging-loki
+        namespace: openshift-logging
+    tls:
+      ca:
+        key: service-ca.crt
+        configMapName: openshift-service-ca.crt
   #inputs:
   #  - name: namespace-andrew
   #    type: application
@@ -69,5 +82,11 @@ spec:
   #  name: cloudwatch-namespace-andrew
   #  outputRefs:
   #  - cloudwatch-namespace-andrew
+  - name: default-logstore
+    inputRefs:
+    - application
+    - infrastructure
+    outputRefs:
+    - default-lokistack
   serviceAccount:
     name: logging

@@ -9,7 +9,7 @@
       "Action": "sts:AssumeRoleWithWebIdentity",
       "Condition": {
         "StringEquals": {
-          "oidc.op1.openshiftapps.com/2hlqq2v9bc260bbb071mjtaf8l678kr0:sub": "system:serviceaccount:openshift-logging:logging" 
+          "oidc.op1.openshiftapps.com/2hvsvdbts11depult4mq42ekjstefl8i:sub": "system:serviceaccount:openshift-logging:logging-loki"
         }
       }
     }
