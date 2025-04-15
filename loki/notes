@@ -7,4 +7,15 @@ aws iam attach-role-policy --role-name the-cluster-lokistack-access-role --polic
 oc -n openshift-logging create secret generic logging-loki-aws --from-literal=bucketnames=the-cluster-loki --from-literal=region=ap-southeast-2 --from-literal=audience=openshift --from-literal=role_arn=arn:aws:iam::975050192548:role/the-cluster-lokistack-access-role
 
 
+loki needs to be in different namespaces
+  same for secrets 
+  should split each into its own s3 -- but the sub has the role arn defined... -- dont'tthink it will work casue can't anottate the SA 
+
+clf is only needed for logging and should be in openshift-logging
+
+
+flowcollector needs to point at openshift-network eg netobserv
+
+
+
 

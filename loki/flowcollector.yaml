@@ -92,29 +92,29 @@ spec:
         memory: 50Mi
   deploymentModel: Direct
   exporters: []
-  kafka:
-    address: kafka-cluster-kafka-bootstrap.netobserv
-    sasl:
-      clientIDReference:
-        namespace: ""
-      clientSecretReference:
-        namespace: ""
-      type: Disabled
-    tls:
-      caCert:
-        certFile: ca.crt
-        name: kafka-cluster-cluster-ca-cert
-        namespace: ""
-        type: secret
-      enable: false
-      insecureSkipVerify: false
-      userCert:
-        certFile: user.crt
-        certKey: user.key
-        name: flp-kafka
-        namespace: ""
-        type: secret
-    topic: network-flows
+  #kafka:
+  #  address: kafka-cluster-kafka-bootstrap.netobserv
+  #  sasl:
+  #    clientIDReference:
+  #      namespace: ""
+  #    clientSecretReference:
+  #      namespace: ""
+  #    type: Disabled
+  #  tls:
+  #    caCert:
+  #      certFile: ca.crt
+  #      name: kafka-cluster-cluster-ca-cert
+  #      namespace: ""
+  #      type: secret
+  #    enable: false
+  #    insecureSkipVerify: false
+  #    userCert:
+  #      certFile: user.crt
+  #      certKey: user.key
+  #      name: flp-kafka
+  #      namespace: ""
+  #      type: secret
+  #  topic: network-flows
   loki:
     advanced:
       staticLabels:
@@ -124,8 +124,8 @@ spec:
       writeMinBackoff: 1s
     enable: true
     lokiStack:
-      name: logging-loki
-      namespace: openshift-logging
+      name: logging-network
+      namespace: netobserv
     manual:
       authToken: Disabled
       ingesterUrl: http://loki:3100/

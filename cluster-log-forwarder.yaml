@@ -21,19 +21,6 @@ spec:
       region: ap-southeast-2
     name: cloudwatch-infrastructure
     type: cloudwatch
-  #- cloudwatch:
-  #    authentication:
-  #      iamRole:
-  #        roleARN:
-  #          key: credentials
-  #          secretName: cloudwatch-credentials
-  #        token:
-  #          from: serviceAccount
-  #      type: iamRole
-  #    groupName: the-cluster-application
-  #    region: ap-southeast-2
-  #  name: cloudwatch-application
-  #  type: cloudwatch
   - cloudwatch:
       authentication:
         iamRole:
@@ -60,12 +47,6 @@ spec:
       ca:
         key: service-ca.crt
         configMapName: openshift-service-ca.crt
-  #inputs:
-  #  - name: namespace-andrew
-  #    type: application
-  #    application: 
-  #      includes:
-  #        - namespace: andrew
   pipelines:
   - inputRefs:
     - infrastructure
@@ -77,11 +58,6 @@ spec:
     name: cloudwatch-in-namespace-all
     outputRefs:
     - cloudwatch-namespace-all
-  #- inputRefs:
-  #  - namespace-andrew
-  #  name: cloudwatch-namespace-andrew
-  #  outputRefs:
-  #  - cloudwatch-namespace-andrew
   - name: default-logstore
     inputRefs:
     - application

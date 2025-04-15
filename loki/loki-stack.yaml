@@ -1,8 +1,10 @@
 apiVersion: loki.grafana.com/v1
 kind: LokiStack
 metadata:
-  name: logging-loki 
-  namespace: openshift-logging
+  #name: logging-loki 
+  name: logging-network
+  #namespace: openshift-logging
+  namespace: netobserv
 spec:
   size: 1x.extra-small 
   storage:
